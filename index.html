@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="so" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Almashjeri Travel & Tourism - Management System</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-full flex flex-col font-sans antialiased text-slate-800 bg-slate-100/70">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- App Wrapper -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden lg:flex lg:flex-col w-72 bg-slate-900 text-white flex-shrink-0 border-r border-slate-800 select-none shadow-xl">
+      <!-- Agency Branding -->
+      <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <i class="fa-solid fa-plane-up text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base tracking-wide text-white leading-tight">AL-MASHJERI TRAVEL</h1>
+          <span class="text-[11px] text-sky-400 font-semibold uppercase tracking-wider">Management System</span>
+        </div>
+      </div>
+
+      <!-- Quick Action CTA -->
+      <div class="px-5 pt-5 pb-2">
+        <button onclick="app.openModal('modalNewBooking')" class="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all duration-200">
+          <i class="fa-solid fa-plus-circle text-sm"></i>
+          <span>Boos Cusub Qor</span>
+        </button>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
+        <button data-view="dashboard" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-400 transition-all">
+          <i class="fa-solid fa-chart-pie text-base w-5 text-center"></i>
+          <span>Dulmar Guud (Dashboard)</span>
+        </button>
+
+        <button data-view="bookings" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+          <i class="fa-solid fa-ticket text-base w-5 text-center"></i>
+          <span>Boosaska & Tikidhada</span>
+        </button>
+
+        <button data-view="destinations" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+          <i class="fa-solid fa-mountain-sun text-base w-5 text-center"></i>
+          <span>Goobaha & Dalxiiska</span>
+        </button>
+
+        <button data-view="finance" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+          <i class="fa-solid fa-sack-dollar text-base w-5 text-center"></i>
+          <span>Maamulka Lacagaha (Finance)</span>
+        </button>
+
+        <button data-view="customers" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+          <i class="fa-solid fa-users text-base w-5 text-center"></i>
+          <span>Macaamiisha (Clients)</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Bottom Info -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-950/40">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+          <span>Xogta Tusaalaha:</span>
+          <button id="btnResetData" class="text-rose-400 hover:text-rose-300 text-[11px] font-medium underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-left"></i> Dib u cusboonaysii
+          </button>
+        </div>
+        <div class="bg-slate-800/60 p-3 rounded-xl flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-bold text-white truncate">Maamulaha Guud</div>
+            <div class="text-[10px] text-slate-400 truncate">System Online</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MOBILE SIDEBAR DRAWER -->
+    <div id="mobileSidebar" class="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white z-50 transform -translate-x-full transition-transform duration-300 flex flex-col lg:hidden shadow-2xl">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-sky-500 flex items-center justify-center text-white">
+            <i class="fa-solid fa-plane-up"></i>
+          </div>
+          <span class="font-bold text-sm text-white">AL-MASHJERI TRAVEL</span>
+        </div>
+        <button id="mobileClose" class="text-slate-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <button data-view="dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+          <i class="fa-solid fa-chart-pie w-5"></i> Dulmar Guud
+        </button>
+        <button data-view="bookings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+          <i class="fa-solid fa-ticket w-5"></i> Boosaska
+        </button>
+        <button data-view="destinations" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+          <i class="fa-solid fa-mountain-sun w-5"></i> Goobaha & Dalxiiska
+        </button>
+        <button data-view="finance" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+          <i class="fa-solid fa-sack-dollar w-5"></i> Lacagaha & Xisaabta
+        </button>
+        <button data-view="customers" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+          <i class="fa-solid fa-users w-5"></i> Macaamiisha
+        </button>
+      </nav>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+      <!-- TOP HEADER BAR -->
+      <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between z-10">
+        <div class="flex items-center gap-4">
+          <button id="mobileToggle" class="lg:hidden text-slate-600 hover:text-slate-900 p-2 rounded-lg">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h2 class="text-base font-bold text-slate-800 leading-tight">Nidaamka Maamulka almashjeri Travel</h2>
+            <p class="text-xs text-slate-400 hidden sm:block">Dakhliga, Safarrada, Xirmooyinka & Xisaabaadka</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-4">
+          <!-- Live Date Badge -->
+          <div class="hidden md:flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium">
+            <i class="fa-regular fa-calendar-days text-sky-600"></i>
+            <span id="headerLiveDate">Oktoobar 2026</span>
+          </div>
+
+          <!-- Quick Action Buttons in Top Bar -->
+          <button onclick="app.openModal('modalNewTransaction')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span class="hidden sm:inline">Diiwaangeli Lacag</span>
+          </button>
+
+          <button onclick="app.openModal('modalNewDestination')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-image text-xs"></i>
+            <span class="hidden sm:inline">Sawir / Xirmo Cusub</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- SCROLLABLE BODY -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD -->
+        <!-- ========================================== -->
+        <section id="view-dashboard" class="view-section space-y-6">
+          
+          <!-- Welcome Banner -->
+          <div class="gradient-header rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-900/10">
+            <div class="relative z-10 max-w-2xl">
+              <span class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="fa-solid fa-sparkles text-amber-300 mr-1.5"></i> Nidaamka Hufan ee Safarrada
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                Ku Soo Dhawoow Xarunta Maamulka ee Al mashjeri Travel
+              </h2>
+              <p class="text-slate-200 text-xs sm:text-sm mt-2 font-normal leading-relaxed">
+                Halkan waxaad si toos ah ugala socon kartaa dakhliga soo xarooday, kharashaadka baxay, boosaska rakaabka, iyo xirmooyinka dalxiiska aduunka oo dhan.
+              </p>
+              
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button onclick="app.openModal('modalNewBooking')" class="bg-sky-500 hover:bg-sky-400 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-plane-departure"></i> Qor Boos Cusub
+                </button>
+                <button onclick="app.switchView('finance')" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-xl text-xs backdrop-blur-md transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-chart-line"></i> Eeg Xisaabta Lacagta
+                </button>
+              </div>
+            </div>
+
+            <!-- Background Decorative Plane Icon -->
+            <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+              <i class="fa-solid fa-earth-americas text-[240px]"></i>
+            </div>
+          </div>
+
+          <!-- TOP 6 STAT CARDS (FINANCES & BOOKINGS) -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            
+            <!-- 1. Total Revenue (Dakhli) -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Dakhliga Guud</span>
+                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-arrow-down-long"></i>
+                </div>
+              </div>
+              <div id="statTotalIncome" class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">$0</div>
+              <div class="mt-2 text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-up"></i> Lacagta soo xarootay
+              </div>
+            </div>
+
+            <!-- 2. Total Expenses (Kharash) -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Kharashka Guud</span>
+                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-arrow-up-long"></i>
+                </div>
+              </div>
+              <div id="statTotalExpense" class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">$0</div>
+              <div class="mt-2 text-[11px] text-rose-500 font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-wallet"></i> Kharashaadka baxay
+              </div>
+            </div>
+
+            <!-- 3. Net Profit (Macaash Saafi ah) -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Macaashka Saafiga</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-coins"></i>
+                </div>
+              </div>
+              <div id="statNetProfit" class="text-lg sm:text-xl font-black text-emerald-600 tracking-tight">$0</div>
+              <div class="mt-2 text-[11px] text-slate-400 font-medium">Faaiidada dhabta ah</div>
+            </div>
+
+            <!-- 4. Pending / Receivables (Lacagaha Dhiman) -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Lacagaha Dhiman</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+              </div>
+              <div id="statPendingBalance" class="text-lg sm:text-xl font-black text-amber-600 tracking-tight">$0</div>
+              <div class="mt-2 text-[11px] text-amber-700 font-semibold">Deymaha macaamiisha</div>
+            </div>
+
+            <!-- 5. Total Bookings -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Safarrada Guud</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-ticket"></i>
+                </div>
+              </div>
+              <div id="statTotalBookings" class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">0</div>
+              <div class="mt-2 text-[11px] text-indigo-600 font-semibold">Tikidho la jartay</div>
+            </div>
+
+            <!-- 6. Total Clients -->
+            <div class="stat-card-glow bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-slate-500">Macaamiisha</span>
+                <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-user-group"></i>
+                </div>
+              </div>
+              <div id="statTotalCustomers" class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">0</div>
+              <div class="mt-2 text-[11px] text-teal-600 font-semibold">Macaamiil diiwaangashan</div>
+            </div>
+
+          </div>
+
+          <!-- CHARTS SECTION -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Revenue vs Expense Chart (2 cols) -->
+            <div class="lg:col-span-2 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm">Isbarbardhigga Dakhliga & Kharashaadka</h3>
+                  <p class="text-xs text-slate-400">Dhaqdhaqaaqa lacagaha bilaha sanadka</p>
+                </div>
+                <span class="text-xs font-semibold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg">
+                  Xisaabta Guud
+                </span>
+              </div>
+              <div class="h-64 sm:h-72 w-full">
+                <canvas id="chartFinanceOverview"></canvas>
+              </div>
+            </div>
+
+            <!-- Service Category Doughnut Chart (1 col) -->
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+              <div class="mb-4">
+                <h3 class="font-bold text-slate-800 text-sm">Qeybaha Adeegyada</h3>
+                <p class="text-xs text-slate-400">Boosaska loo qabsaday noocyada safarrada</p>
+              </div>
+              <div class="h-56 w-full flex items-center justify-center">
+                <canvas id="chartCategories"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RECENT BOOKINGS TABLE -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm">Safarradii Ugu Dambeeyay ee La Qabtay</h3>
+                <p class="text-xs text-slate-400">5-tii boos ee ugu dambeysay ee nidaamka lagu diiwaangeliyay</p>
+              </div>
+              <button onclick="app.switchView('bookings')" class="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline">
+                Eeg Dhammaan Boosaska &rarr;
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200/60">
+                    <th class="py-3 px-4">ID</th>
+                    <th class="py-3 px-4">Rakaabka</th>
+                    <th class="py-3 px-4">Goobta</th>
+                    <th class="py-3 px-4">Taariikhda</th>
+                    <th class="py-3 px-4">Qiimaha</th>
+                    <th class="py-3 px-4">Dhiman</th>
+                    <th class="py-3 px-4">Xaaladda</th>
+                    <th class="py-3 px-4 text-right">Tikidh</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBookingsTableBody" class="divide-y divide-slate-100 text-xs">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: BOOKINGS & TICKETS -->
+        <!-- ========================================== -->
+        <section id="view-bookings" class="view-section hidden space-y-6">
+          
+          <!-- Header and controls -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Maamulka Boosaska & Tikidhada</h2>
+              <p class="text-xs text-slate-400">Diiwaangeli, maamul, daabac tikidhada & rasiidhyada safarka</p>
+            </div>
+
+            <button onclick="app.openModal('modalNewBooking')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md shadow-sky-600/20 transition-all self-start sm:self-auto">
+              <i class="fa-solid fa-plus-circle"></i> Boos Cusub Qor
+            </button>
+          </div>
+
+          <!-- Filter & Search Bar -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="relative w-full md:w-96">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="searchBookings" placeholder="Raadi macmiilka, goobta, taleefanka, ama ID..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center gap-2 w-full md:w-auto">
+              <span class="text-xs text-slate-500 font-medium whitespace-nowrap">Xaaladda:</span>
+              <select id="filterBookingStatus" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <option value="all">Dhammaan (All)</option>
+                <option value="Bixiyay">Bixiyay (Paid)</option>
+                <option value="Qayb bixiyay">Qayb bixiyay (Partial)</option>
+                <option value="Dhiman">Dhiman (Pending)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- All Bookings Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                    <th class="py-3 px-4">Boos ID</th>
+                    <th class="py-3 px-4">Macaamiilka & Taleefanka</th>
+                    <th class="py-3 px-4">Goobta & Nooca</th>
+                    <th class="py-3 px-4">Taariikhda</th>
+                    <th class="py-3 px-4">Qiimaha Guud</th>
+                    <th class="py-3 px-4">La Bixiyay</th>
+                    <th class="py-3 px-4">Dhiman</th>
+                    <th class="py-3 px-4">Xaaladda</th>
+                    <th class="py-3 px-4 text-right">Ficillo</th>
+                  </tr>
+                </thead>
+                <tbody id="allBookingsTableBody" class="divide-y divide-slate-100 text-xs">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: DESTINATIONS & PACKAGES (SAWIRO & XIRMOOYIN) -->
+        <!-- ========================================== -->
+        <section id="view-destinations" class="view-section hidden space-y-6">
+          
+          <!-- Top bar with New Destination button -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Goobaha & Xirmooyinka Dalxiiska</h2>
+              <p class="text-xs text-slate-400">Sawirrada magaalooyinka, qiimaha xirmooyinka, iyo adeegyada safarka</p>
+            </div>
+
+            <button onclick="app.openModal('modalNewDestination')" class="bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md shadow-sky-600/20 transition-all self-start sm:self-auto">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Ku Dar Xirmo / Sawir Cusub
+            </button>
+          </div>
+
+          <!-- Destinations Gallery Cards Grid -->
+          <div id="destinationsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Populated dynamically with high quality travel photos -->
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: FINANCIAL MANAGEMENT & LACAGAHA -->
+        <!-- ========================================== -->
+        <section id="view-finance" class="view-section hidden space-y-6">
+          
+          <!-- Header and Finance Actions -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Xarunta Maamulka Lacagaha & Xisaabaadka</h2>
+              <p class="text-xs text-slate-400">Dakhliga, kharashaadka diyaaradaha, kirada, mushaharka iyo faaiidada saafiga ah</p>
+            </div>
+
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button id="btnExportFinanceCSV" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2.5 rounded-xl text-xs flex items-center gap-2 border border-slate-300 transition-colors">
+                <i class="fa-solid fa-file-arrow-down"></i> CSV Warbixin
+              </button>
+              <button onclick="app.openModal('modalNewTransaction')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md shadow-emerald-600/20 transition-all">
+                <i class="fa-solid fa-plus-circle"></i> Diiwaangeli Dakhli / Kharash
+              </button>
+            </div>
+          </div>
+
+          <!-- Finance Highlight Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-5 rounded-2xl shadow-lg shadow-emerald-500/10">
+              <div class="text-emerald-100 text-xs font-semibold uppercase tracking-wider mb-1">Dakhliga Soo Galay (Total Income)</div>
+              <div id="finHeadIncome" class="text-2xl font-black">$0</div>
+              <div class="mt-2 text-xs text-emerald-100 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Boosaska & Fiisooyinka
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-rose-500 to-red-700 text-white p-5 rounded-2xl shadow-lg shadow-rose-500/10">
+              <div class="text-rose-100 text-xs font-semibold uppercase tracking-wider mb-1">Kharashaadka Baxay (Total Expenses)</div>
+              <div id="finHeadExpense" class="text-2xl font-black">$0</div>
+              <div class="mt-2 text-xs text-rose-100 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-down"></i> Diyaaradaha, Kirooyinka & Mushaharka
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-sky-600 to-indigo-800 text-white p-5 rounded-2xl shadow-lg shadow-sky-600/10">
+              <div class="text-sky-100 text-xs font-semibold uppercase tracking-wider mb-1">Faaiidada Saafiga ah (Net Profit)</div>
+              <div id="finHeadNet" class="text-2xl font-black">$0</div>
+              <div class="mt-2 text-xs text-sky-100 flex items-center gap-1">
+                <i class="fa-solid fa-chart-line"></i> Dakhli laga jaray Kharash
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment methods distribution visual -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <h3 class="font-bold text-slate-800 text-sm mb-1">Hababka Lacag-Bixinta</h3>
+              <p class="text-xs text-slate-400 mb-3">EVC Plus, ZAAD, Sahal, Cash & Kaararka Bangiga</p>
+              <div class="h-60 flex items-center justify-center">
+                <canvas id="chartPaymentMethods"></canvas>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm mb-1">Sharciyada Xisaabinta Safarrada</h3>
+                <p class="text-xs text-slate-400 mb-4">Nidaamka wuxuu si toos ah u xisaabiyaa:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-calculator text-sky-600 mr-1.5"></i> Xisaabinta Deynta:</span>
+                    <span class="text-slate-500">Boos kasta oo la bixiyo qayb ahaan, hadhaagu wuxuu u wareegayaa "Lacagaha Dhiman".</span>
+                  </div>
+                  <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-receipt text-emerald-600 mr-1.5"></i> Rasiid Toos ah:</span>
+                    <span class="text-slate-500">Tikidh kasta wuxuu wataa rasiid lacageed iyo xaaladda lacagta oo la daabacan karo.</span>
+                  </div>
+                  <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-mobile-screen text-amber-600 mr-1.5"></i> Adeegyada Moobaylka:</span>
+                    <span class="text-slate-500">Taageero dhameystiran oo loogu talagalay EVC Plus, ZAAD Service, Sahal & Kaash.</span>
+                  </div>
+                  <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-file-excel text-teal-600 mr-1.5"></i> Soo Dejinta CSV:</span>
+                    <span class="text-slate-500">Ku daabaco ama ugu wareeji xisaabta Microsoft Excel adigoo hal gujin ku soo dejinaya.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span>Lacagta rasmiga ah ee xafiiska: <strong>US Dollar ($)</strong></span>
+                <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-lock text-[11px] mr-1"></i> Xogtaada waa ammaan</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter & Search Bar for Finance -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="relative w-full md:w-96">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="searchFinance" placeholder="Raadi sharaxaadda, qeybta, habka bixinta..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center gap-2 w-full md:w-auto">
+              <span class="text-xs text-slate-500 font-medium whitespace-nowrap">Nooca:</span>
+              <select id="filterFinanceType" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <option value="all">Dhammaan (All)</option>
+                <option value="Dakhli">Dakhli Keliya (Income)</option>
+                <option value="Kharash">Kharash Keliya (Expenses)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Financial Ledger Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                    <th class="py-3 px-4">TX ID</th>
+                    <th class="py-3 px-4">Taariikh</th>
+                    <th class="py-3 px-4">Nooca</th>
+                    <th class="py-3 px-4">Qeybta</th>
+                    <th class="py-3 px-4">Sharaxaadda Dhaqdhaqaaqa</th>
+                    <th class="py-3 px-4">Habka Bixinta</th>
+                    <th class="py-3 px-4 text-right">Lacagta ($)</th>
+                  </tr>
+                </thead>
+                <tbody id="financeTableBody" class="divide-y divide-slate-100 text-xs">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: CUSTOMERS (MACAAMIISHA) -->
+        <!-- ========================================== -->
+        <section id="view-customers" class="view-section hidden space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Diiwaanka Macaamiisha</h2>
+              <p class="text-xs text-slate-400">Liiska dadka safarrada qabsaday, lacagaha ay bixiyeen, iyo xiriirka tooska ah</p>
+            </div>
+          </div>
+
+          <!-- Customers Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                    <th class="py-3 px-4">#</th>
+                    <th class="py-3 px-4">Magaca Macmiilka</th>
+                    <th class="py-3 px-4">Telefoonka & Email</th>
+                    <th class="py-3 px-4">Baasaboorka</th>
+                    <th class="py-3 px-4 text-center">Tirada Safarrada</th>
+                    <th class="py-3 px-4">Wadarta Bixiyay</th>
+                    <th class="py-3 px-4">Dhiman (Debt)</th>
+                    <th class="py-3 px-4 text-right">Xiriir Toos ah</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTableBody" class="divide-y divide-slate-100 text-xs">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MODALS -->
+  <!-- ========================================== -->
+
+  <!-- 1. MODAL: NEW BOOKING -->
+  <div id="modalNewBooking" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-fade-in">
+      <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-plane-departure text-lg text-amber-300"></i>
+          <h3 class="font-bold text-sm">Diiwaangeli Boos Cusub (New Booking)</h3>
+        </div>
+        <button onclick="app.closeModal('modalNewBooking')" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="formNewBooking" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Magaca Macmiilka *</label>
+            <input type="text" id="bookingCustomerName" required placeholder="Tusaale: Axmed Cali Jimcaale" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Telefoonka (WhatsApp) *</label>
+            <input type="text" id="bookingPhone" required placeholder="Tusaale: +252 61 5000000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Numberka Baasaboorka</label>
+            <input type="text" id="bookingPassport" placeholder="Tusaale: P089421" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none uppercase">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Dooro Goobta / Xirmada *</label>
+            <select id="bookingDestinationSelect" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nooca Safarka</label>
+            <select id="bookingTypeInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <option value="Dalxiis">Dalxiis (Holiday Tour)</option>
+              <option value="Cumro">Cumro & Xaj (Umrah)</option>
+              <option value="Duulimaad">Duulimaad Keliya (Flight)</option>
+              <option value="Nasiino">Nasiino Xeeb (Resort)</option>
+              <option value="Safari">Safari & Duurjoog</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Tirada Rakaabka</label>
+            <input type="number" id="bookingPassengers" value="1" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Taariikhda Bixitaanka *</label>
+            <input type="date" id="bookingTravelDate" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Taariikhda Soo Laabashada</label>
+            <input type="date" id="bookingReturnDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Financial Section in Booking -->
+        <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-100 space-y-3">
+          <div class="text-xs font-bold text-sky-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-coins"></i> Qeybta Lacagta & Bixinta
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 mb-1">Qiimaha Guud ($) *</label>
+              <input type="number" id="bookingPriceInput" required min="1" step="any" placeholder="850" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 mb-1">Lacagta La Bixiyay ($)</label>
+              <input type="number" id="bookingPaidInput" min="0" step="any" placeholder="0" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-emerald-700 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 mb-1">Hadhaaga Dhiman</label>
+              <div id="bookingBalanceDisplay" class="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-amber-600">
+                $0
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Habka Lacag-Bixinta</label>
+            <select id="bookingMethodSelect" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <option value="EVC Plus">EVC Plus (Hormuud)</option>
+              <option value="ZAAD Service">ZAAD Service (Telesom)</option>
+              <option value="Sahal">Sahal (Golis)</option>
+              <option value="Kaash (Cash)">Kaash Gacanta ah (Cash)</option>
+              <option value="Bank Transfer">Wareejin Bangi (Premier / IBS / Salaam)</option>
+              <option value="MasterCard / Visa">Kaarka Bangiga (MasterCard / Visa)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Faallo / Qoraal Dheeraad ah</label>
+          <textarea id="bookingNotes" rows="2" placeholder="Fadlan ku qor faahfaahin kasta oo dheeraad ah..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="app.closeModal('modalNewBooking')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+            Jooji
+          </button>
+          <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> Keydi Booska
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 2. MODAL: NEW DESTINATION / PACKAGE (WITH IMAGE UPLOAD / URL) -->
+  <div id="modalNewDestination" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-fade-in">
+      <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-camera text-lg text-amber-300"></i>
+          <h3 class="font-bold text-sm">Ku Dar Xirmo & Sawir Cusub (Add Package)</h3>
+        </div>
+        <button onclick="app.closeModal('modalNewDestination')" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="formNewDestination" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Magaalada / Dalka *</label>
+            <input type="text" id="destNameInput" required placeholder="Tusaale: Istanbul, Turkey" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Ciwaanka Xirmada *</label>
+            <input type="text" id="destTitleInput" required placeholder="Tusaale: Dalxiiska Taariikhiga ah ee Istanbul" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Qiimaha Qofkiiba ($) *</label>
+            <input type="number" id="destPriceInput" required min="1" placeholder="850" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Muddada Safarka</label>
+            <input type="text" id="destDurationInput" placeholder="Tusaale: 7 Maalmood / 6 Habeen" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Qeybta</label>
+            <select id="destCategoryInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <option value="Dalxiis">Dalxiis (Holiday Tour)</option>
+              <option value="Cumro">Cumro & Xaj</option>
+              <option value="Nasiino">Nasiino Xeeb (Beach)</option>
+              <option value="Safari">Safari Duur-joog</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Adeegyada ku jira (Koma ku kala saar)</label>
+            <input type="text" id="destFeaturesInput" placeholder="Tikidh, Hoteel 4-Star, Dalxiis, Fiiso" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- IMAGE UPLOAD / URL SECTION -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <label class="block text-xs font-bold text-slate-800">Sawirka Goobta / Dalxiiska (Sawir Soo Geli)</label>
+          
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="w-full flex-1">
+              <label class="block text-[11px] text-slate-500 mb-1">1. Ka soo geli kumbuyuutarkaaga (Upload File):</label>
+              <input type="file" id="destImageFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
+            </div>
+
+            <span class="text-xs text-slate-400 font-bold uppercase">AMA</span>
+
+            <div class="w-full flex-1">
+              <label class="block text-[11px] text-slate-500 mb-1">2. Ama geli link-ga sawirka (URL):</label>
+              <input type="url" id="destImageInput" placeholder="https://images.unsplash.com/..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Live Preview -->
+          <img id="destImagePreview" src="" alt="Preview" class="hidden w-full h-36 object-cover rounded-xl border border-slate-200 shadow-inner">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Sharaxaadda Xirmada</label>
+          <textarea id="destDescInput" rows="2" placeholder="Sharax goobaha la booqanayo, hoteelka, iyo waxyaabaha xiisaha leh..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="app.closeModal('modalNewDestination')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+            Jooji
+          </button>
+          <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Keydi Xirmada
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 3. MODAL: NEW FINANCIAL TRANSACTION -->
+  <div id="modalNewTransaction" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-fade-in">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-800 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-coins text-lg text-amber-300"></i>
+          <h3 class="font-bold text-sm">Diiwaangeli Dakhli / Kharash Cusub</h3>
+        </div>
+        <button onclick="app.closeModal('modalNewTransaction')" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="formNewTransaction" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nooca Dhaqdhaqaaqa *</label>
+          <select id="txTypeInput" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="Dakhli">Dakhli Soo Galay (Income)</option>
+            <option value="Kharash">Kharash Baxay (Expense)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Qeybta Xisaabta *</label>
+          <select id="txCategoryInput" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="Boos Qabasho (Booking)">Boos Qabasho (Booking)</option>
+            <option value="Tikidh Diyaaradeed">Tikidh Diyaaradeed (Airline Settlement)</option>
+            <option value="Fiisooyin & Adeegyo">Fiisooyin & Adeegyo (Visa Fees)</option>
+            <option value="Hoteel & Dajin">Hoteel & Dajin (Hotel Payment)</option>
+            <option value="Kiro Xafiis">Kiro Xafiis (Office Rent)</option>
+            <option value="Mushaharka Shaqaalaha">Mushaharka Shaqaalaha (Salaries)</option>
+            <option value="Suuq-geyn & Xayeysiis">Suuq-geyn & Xayeysiis (Marketing)</option>
+            <option value="Kale">Kharashyo Kale (Other)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Lacagta ($) *</label>
+          <input type="number" id="txAmountInput" required min="1" step="any" placeholder="Tusaale: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Habka Lacag-bixinta *</label>
+          <select id="txMethodInput" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="EVC Plus">EVC Plus</option>
+            <option value="ZAAD Service">ZAAD Service</option>
+            <option value="Sahal">Sahal</option>
+            <option value="Kaash (Cash)">Kaash (Cash)</option>
+            <option value="Bank Transfer">Wareejin Bangi</option>
+            <option value="MasterCard / Visa">Kaarka Bangiga</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Taariikhda</label>
+          <input type="date" id="txDateInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Faahfaahin / Sharaxaad *</label>
+          <textarea id="txDescriptionInput" required rows="2" placeholder="Sharax sababta lacagta loo bixiyay ama loo qabtay..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="app.closeModal('modalNewTransaction')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+            Jooji
+          </button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> Keydi Xisaabta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 4. MODAL: RECORD ADDITIONAL PAYMENT -->
+  <div id="modalAddPayment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-fade-in">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-800 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-hand-holding-dollar text-amber-300"></i>
+          <h3 class="font-bold text-sm">Ku Kordhi Lacag-Bixin Booska</h3>
+        </div>
+        <button onclick="app.closeModal('modalAddPayment')" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="paymentBookingId">
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-1">
+          <div class="text-xs text-slate-500">Macmiilka: <strong id="paymentCustomerName" class="text-slate-800"></strong></div>
+          <div class="text-xs text-slate-500">Hadhaaga Dhiman: <strong id="paymentDueAmount" class="text-amber-600 font-bold"></strong></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Lacagta La Bixinayo ($) *</label>
+          <input type="number" id="paymentAmountInput" min="1" step="any" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Habka Lacag-Bixinta</label>
+          <select id="paymentMethodSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="EVC Plus">EVC Plus</option>
+            <option value="ZAAD Service">ZAAD Service</option>
+            <option value="Sahal">Sahal</option>
+            <option value="Kaash (Cash)">Kaash (Cash)</option>
+            <option value="Bank Transfer">Wareejin Bangi</option>
+            <option value="MasterCard / Visa">Kaarka Bangiga</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Qoraal / Numberka Rasiidka</label>
+          <input type="text" id="paymentNotesInput" placeholder="Tusaale: Trx ID #83921" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="app.closeModal('modalAddPayment')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+            Jooji
+          </button>
+          <button type="button" onclick="app.submitAdditionalPayment()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> Xaree Lacagta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 5. MODAL: VIEW & PRINT TICKET / RECEIPT -->
+  <div id="modalTicketView" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-fade-in flex flex-col">
+      <!-- Header bar with print button -->
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between no-print">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-ticket text-amber-400"></i>
+          <h3 class="font-bold text-sm">Tikidhka Safarka & Rasiidka (Boarding Pass)</h3>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="btnPrintTicket" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors shadow-sm">
+            <i class="fa-solid fa-print"></i> Daabac Tikidhka
+          </button>
+          <button onclick="app.closeModal('modalTicketView')" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ticket Printable Body -->
+      <div class="p-6 overflow-y-auto max-h-[80vh]">
+        <div id="ticketModalContent">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Core Script File -->
+  <script src="app.js"></script>
+</body>
+</html>
